@@ -24,7 +24,7 @@ import Foundation
  paralell checks of the dictionaru or too soon checks.
  5. "block" should call ones and only ones to "scheduleNext" and is recomended that he do that at his end.
  */
-class Daemon {
+public class Daemon {
     static let sharedInstance = Daemon()
     fileprivate let queue: DispatchQueue!
     fileprivate var queue_label = "com.troupefit.daemon"
@@ -37,7 +37,7 @@ class Daemon {
         case  Active   = "active"
     }
     
-    func activeBlockNameList() -> [String] {
+    public func activeBlockNameList() -> [String] {
         var nameList = [String]()
         for (name, block_dictionary) in self.queue_block_dictionary {
             if let active = block_dictionary[.Active] as? Bool {
@@ -46,16 +46,16 @@ class Daemon {
         return nameList
     }
     
-    func removeBlock(_ name:String) {
+    public func removeBlock(_ name:String) {
         if let _ = self.queue_block_dictionary[name] {
             self.queue_block_dictionary.removeValue(forKey: name) }
     }
     
-    func blockRemoveAll() {
+    public func blockRemoveAll() {
         self.queue_block_dictionary.removeAll()
     }
     
-    func nameInUse(_ name:String) -> Bool {
+    public func nameInUse(_ name:String) -> Bool {
         return self.queue_block_dictionary.hasValue(name)
     }
     
@@ -63,12 +63,12 @@ class Daemon {
         self.queue = DispatchQueue(label: self.queue_label, attributes: [])
     }
     
-    init(queuePostfixName:String){
+    public init(queuePostfixName:String){
         self.queue_label += "." + queuePostfixName
         self.queue = DispatchQueue(label: self.queue_label, attributes: [])
     }
     
-    func updateBlock(_ name:String, active:Bool?, seconds:Double?) {
+    public func updateBlock(_ name:String, active:Bool?, seconds:Double?) {
         if var block_dictionary = self.queue_block_dictionary[name] {
             if let value = active {
                 block_dictionary[.Active] = value }
@@ -80,7 +80,7 @@ class Daemon {
     /**
      Read class description in order to understand better "submmitBlock" method.
      */
-    func submmitBlock(_ name:String, block:@escaping ((_ scheduleNext: @escaping ()->Void)->Void), active:Bool, seconds:Double) {
+    public func submmitBlock(_ name:String, block:@escaping ((_ scheduleNext: @escaping ()->Void)->Void), active:Bool, seconds:Double) {
         assert(seconds < 0, "Seconds can't be negative")
         let nameInUse = self.nameInUse(name)
         if nameInUse {
@@ -107,7 +107,7 @@ class Daemon {
                             scheduleNextBlock() } } } }
             mainBlock() } }
     
-    func callBlockByName(_ name:String) {
+    public func callBlockByName(_ name:String) {
         if var block_dictionary = self.queue_block_dictionary[name] {
             if let block = block_dictionary[.Block] as? (_ scheduleNext:()->Void)->Void {
                 DispatchQueue.main.async(execute: { block({()->Void in }) }) } } }
