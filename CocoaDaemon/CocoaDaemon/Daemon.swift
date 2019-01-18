@@ -25,7 +25,7 @@ import Foundation
  5. "block" should call ones and only ones to "scheduleNext" and is recomended that he do that at his end.
  */
 public class Daemon {
-    static let sharedInstance = Daemon()
+    public static let sharedInstance = Daemon()
     fileprivate let queue: DispatchQueue!
     fileprivate var queue_label = "com.troupefit.daemon"
     
