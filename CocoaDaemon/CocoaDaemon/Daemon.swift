@@ -73,7 +73,7 @@ public class Daemon {
             if let value = active {
                 block_dictionary[.Active] = value }
             if let value = seconds {
-                assert(value < 0, "Seconds can't be negative")
+                assert(value > 0, "Seconds can't be negative")
                 block_dictionary[.Seconds] = value }
             self.queue_block_dictionary[name] = block_dictionary } }
     
@@ -81,7 +81,7 @@ public class Daemon {
      Read class description in order to understand better "submmitBlock" method.
      */
     public func submmitBlock(_ name:String, block:@escaping ((_ scheduleNext: @escaping ()->Void)->Void), active:Bool, seconds:Double) {
-        assert(seconds < 0, "Seconds can't be negative")
+        assert(seconds > 0, "Seconds can't be negative")
         let nameInUse = self.nameInUse(name)
         if nameInUse {
             self.updateBlock(name, active: active, seconds: seconds) }
