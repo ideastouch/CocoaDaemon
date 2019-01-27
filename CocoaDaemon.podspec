@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name = 'CocoaDaemon'
-  s.version = '0.9.5'
+  s.version = '1.0.0'
   s.summary = 'Daemon Kit to manage background closures to be called each set period of time.'
   s.homepage = 'https://github.com/ideastouch/CocoaDaemon'
   s.license = { :type => 'MIT', :file => 'LICENSE' }
