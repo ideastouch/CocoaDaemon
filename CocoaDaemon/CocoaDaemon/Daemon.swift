@@ -78,9 +78,9 @@ public class Daemon {
             self.queue_block_dictionary[name] = block_dictionary } }
     
     /**
-     Read class description in order to understand better "submmitBlock" method.
+     Read class description in order to understand better "submitBlock" method.
      */
-    public func submmitBlock(_ name:String, block:@escaping ((_ scheduleNext: @escaping ()->Void)->Void), active:Bool, seconds:Double) {
+    public func submitBlock(_ name:String, block:@escaping ((_ scheduleNext: @escaping ()->Void)->Void), active:Bool, seconds:Double) {
         assert(seconds > 0, "Seconds can't be negative")
         let nameInUse = self.nameInUse(name)
         if nameInUse {

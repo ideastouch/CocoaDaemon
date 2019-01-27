@@ -10,23 +10,46 @@ import XCTest
 @testable import CocoaDaemon
 
 class CocoaDaemonTests: XCTestCase {
-    
-    override func setUp() {
-        // Put setup code here. This method is called before the invocation of each test method in the class.
-    }
-    
-    override func tearDown() {
-        // Put teardown code here. This method is called after the invocation of each test method in the class.
-    }
-    
     func testDispatchTime() {
-        // This is an example of a functional test case.
-        // Use XCTAssert and related functions to verify your tests produce the correct results.
-        let seconds = Double(10)
+        let seconds = Double(1)
         let now = DispatchTime.now() + seconds * Double(NSEC_PER_SEC) / Double(NSEC_PER_SEC)
-        let dispatchTime = DispatchTime.delay(seconds:10)
+        let dispatchTime = DispatchTime.delay(seconds:seconds)
         let after = DispatchTime.now() + seconds * Double(NSEC_PER_SEC) / Double(NSEC_PER_SEC)
         XCTAssert(now <= dispatchTime && dispatchTime <= after)
+    }
+    
+    func testSubmitDaemon() {
+        let unitTime = 0.1
+        let times = 10
+        var counter = 0
+        let expectation = XCTestExpectation(description: "Run daemon closure a \(times) times.")
+        Daemon.sharedInstance.submitBlock("RunAFewTimes", block: { (completion: @escaping () -> Void) in
+            counter += 1
+            guard counter < times else {
+                expectation.fulfill()
+                return
+            }
+            completion()
+        }, active: true, seconds: unitTime)
+        wait(for: [expectation], timeout: unitTime * Double(times + 1))
+    }
+    func testUpdateDaemon() {
+        let firstDaemonUnitTime = 0.01
+        let secondDaemonUnitTime = 0.1
+        let firstDaemonName = "FirstDaemonName"
+        let secondDaemonName = "SecondDaemonName"
+        let fullFillSecondDaemon = XCTestExpectation(description: "FullFillSecondDaemon")
+        fullFillSecondDaemon.assertForOverFulfill = true
+        let activateSecondDaemon = XCTestExpectation(description: "ActivateSecondDaemon")
+        Daemon.sharedInstance.submitBlock(firstDaemonName, block: { (_:@escaping () -> Void) in
+            fullFillSecondDaemon.fulfill()
+        }, active: false, seconds: firstDaemonUnitTime)
+        Daemon.sharedInstance.submitBlock(secondDaemonName, block: { (_:@escaping () -> Void) in
+            activateSecondDaemon.fulfill()
+            Daemon.sharedInstance.updateBlock(firstDaemonName, active: true, seconds: nil)
+        }, active: true, seconds: secondDaemonUnitTime)
+        let timeout =  secondDaemonUnitTime + firstDaemonUnitTime * 2
+        wait(for: [activateSecondDaemon, fullFillSecondDaemon], timeout: timeout, enforceOrder: true)
     }
 }
 
